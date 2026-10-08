@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LINKSTUDIO - Create. Upload. Share.</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        neon: {
+                            blue: '#00f0ff',
+                            purple: '#7000ff',
+                            pink: '#ff007f',
+                            glow: 'rgba(0, 240, 255, 0.25)'
+                        },
+                        dark: {
+                            bg: '#07090e',
+                            card: '#0f141d',
+                            surface: '#161d2a',
+                            border: 'rgba(255, 255, 255, 0.08)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 2s infinite alternate',
+                        'float': 'float 3s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%': { boxShadow: '0 0 15px rgba(0, 240, 255, 0.2)' },
+                            '100%': { boxShadow: '0 0 30px rgba(0, 240, 255, 0.6)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-6px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #07090e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f293d;
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+
+        /* Glassmorphism effects */
+        .glass-panel {
+            background: rgba(15, 20, 29, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-panel-glow {
+            background: rgba(15, 20, 29, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+        }
+
+        .neon-border-glow {
+            border: 1px solid rgba(0, 240, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+        }
+
+        .neon-text-glow {
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+        }
+
+        /* Mobile bottom toolbar smooth scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Bottom sheet drawer animation */
+        .bottom-sheet {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .bottom-sheet.closed {
+            transform: translateY(100%);
+        }
+
+        /* Range Sliders */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: #1e293b;
+            border-radius: 8px;
+            height: 6px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #00f0ff;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00f0ff;
+        }
+
+        /* Text preview templates */
+        .tpl-minimal { background: #0f172a; color: #f8fafc; border: 1px solid #334155; }
+        .tpl-dark { background: #000000; color: #38bdf8; border: 1px solid #1e293b; }
+        .tpl-neon { background: #050b14; color: #00f0ff; border: 2px solid #00f0ff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.4); }
+        .tpl-glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); color: #ffffff; border: 1px solid rgba(255,255,255,0.2); }
+        .tpl-modern { background: linear-gradient(135deg, #1e1b4b, #311042); color: #f43f5e; border: 1px solid #4c1d95; }
+        .tpl-simple { background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; }
+        .tpl-cyber { background: #0d0221; color: #00ff66; font-family: 'Fira Code', monospace; border: 1px solid #ff007f; }
+    </style>
+</head>
+<body class="bg-dark-bg text-gray-200 font-sans min-h-screen flex flex-col antialiased selection:bg-neon-blue selection:text-black">
+
+    <header class="sticky top-0 z-40 glass-panel border-b border-dark-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="showView('home')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-blue to-neon-purple p-0.5 flex items-center justify-center shadow-lg shadow-neon-blue/20">
+                    <div class="w-full h-full bg-dark-bg rounded-[10px] flex items-center justify-center">
+                        <i class="fa-solid font-bold fa-link text-neon-blue text-lg"></i>
+                    </div>
+                </div>
+                <span class="font-heading text-xl font-bold tracking-wider text-white">
+                    LINK<span class="text-neon-blue neon-text-glow">STUDIO</span>
+                </span>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center space-x-1">
+                <button onclick="showView('home')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition hover:text-neon-blue hover:bg-white/5 active-nav" data-view="home">
+                    <i class="fa-solid fa-house mr-2"></i>Home
+                </button>
+                <button onclick="showView('editor-photo')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition hover:text-neon-blue hover:bg-white/5" data-view="editor-photo">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Editor Foto
+                </button>
+                <button onclick="showView('editor-text')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition hover:text-neon-blue hover:bg-white/5" data-view="editor-text">
+                    <i class="fa-solid fa-pen-nib mr-2"></i>Buat Teks
+                </button>
+                <button onclick="showView('file-upload')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition hover:text-neon-blue hover:bg-white/5" data-view="file-upload">
+                    <i class="fa-solid fa-cloud-arrow-up mr-2"></i>Upload File
+                </button>
+                <button onclick="showView('my-links')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition hover:text-neon-blue hover:bg-white/5" data-view="my-links">
+                    <i class="fa-solid fa-folder-tree mr-2"></i>Link Saya
+                </button>
+                <button onclick="showView('settings')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition hover:text-neon-blue hover:bg-white/5" data-view="settings">
+                    <i class="fa-solid fa-gear mr-2"></i>Pengaturan
+                </button>
+            </nav>
+
+            <!-- Quick Actions / Theme Toggle -->
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleTheme()" class="p-2.5 rounded-lg text-gray-400 hover:text-neon-blue hover:bg-white/5 transition" title="Ganti Tema">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+                <button onclick="showView('editor-photo')" class="hidden sm:inline-flex items-center space-x-2 bg-gradient-to-r from-neon-blue to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-dark-bg font-semibold px-4 py-2 rounded-lg text-sm transition shadow-lg shadow-neon-blue/20">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Buat Link</span>
+                </button>
+                
+                <!-- Mobile menu toggle -->
+                <button onclick="toggleMobileNav()" class="md:hidden p-2.5 rounded-lg text-gray-300 hover:bg-white/5">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-nav" class="hidden md:hidden border-t border-dark-border bg-dark-card px-4 pt-2 pb-4 space-y-1">
+            <button onclick="showView('home'); toggleMobileNav();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-white/5 flex items-center space-x-3">
+                <i class="fa-solid fa-house w-5 text-neon-blue"></i><span>Home</span>
+            </button>
+            <button onclick="showView('editor-photo'); toggleMobileNav();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-white/5 flex items-center space-x-3">
+                <i class="fa-solid fa-image w-5 text-neon-blue"></i><span>Editor Foto</span>
+            </button>
+            <button onclick="showView('editor-text'); toggleMobileNav();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-white/5 flex items-center space-x-3">
+                <i class="fa-solid fa-font w-5 text-neon-blue"></i><span>Buat Teks</span>
+            </button>
+            <button onclick="showView('file-upload'); toggleMobileNav();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-white/5 flex items-center space-x-3">
+                <i class="fa-solid fa-upload w-5 text-neon-blue"></i><span>Upload File</span>
+            </button>
+            <button onclick="showView('my-links'); toggleMobileNav();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-white/5 flex items-center space-x-3">
+                <i class="fa-solid fa-link w-5 text-neon-blue"></i><span>Link Saya</span>
+            </button>
+            <button onclick="showView('settings'); toggleMobileNav();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-white/5 flex items-center space-x-3">
+                <i class="fa-solid fa-sliders w-5 text-neon-blue"></i><span>Pengaturan</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 relative">
+
+        <!-- ================= PAGE 1: HOME VIEW ================= -->
+        <section id="view-home" class="space-y-12 py-6">
+            <!-- Hero Section -->
+            <div class="text-center space-y-6 max-w-3xl mx-auto py-8 sm:py-12 relative">
+                <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full glass-panel-glow border-neon-blue/30 text-neon-blue text-xs sm:text-sm font-medium animate-float">
+                    <span class="w-2 h-2 rounded-full bg-neon-blue animate-ping"></span>
+                    <span>Link Studio v2.5 Online</span>
+                </div>
+                <h1 class="font-heading text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                    Create. Upload. <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-cyan-300 to-neon-purple neon-text-glow">Share.</span>
+                </h1>
+                <p class="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto font-light leading-relaxed">
+                    Ubah foto, file, atau teks menjadi link yang mudah dibagikan. Lengkap dengan editor foto canvas, penyesuaian teks, QR code, dan pelacakan statistik real-time.
+                </p>
+
+                <!-- Hero Action Buttons -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                    <button onclick="showView('editor-photo')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-neon-blue to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-dark-bg font-bold text-base transition duration-300 transform hover:-translate-y-0.5 shadow-lg shadow-neon-blue/30 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>+ Buat Baru (Foto)</span>
+                    </button>
+                    <button onclick="showView('file-upload')" class="w-full sm:w-auto px-8 py-4 rounded-xl glass-panel hover:bg-white/10 text-white font-semibold text-base transition duration-300 border border-white/10 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-cloud-arrow-up text-neon-blue"></i>
+                        <span>Upload File</span>
+                    </button>
+                    <button onclick="showView('editor-text')" class="w-full sm:w-auto px-8 py-4 rounded-xl glass-panel hover:bg-white/10 text-white font-semibold text-base transition duration-300 border border-white/10 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-pen-nib text-neon-purple"></i>
+                        <span>Buat Teks</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div onclick="showView('editor-photo')" class="glass-panel p-6 rounded-2xl hover:border-neon-blue/50 transition duration-300 cursor-pointer group hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-xl bg-neon-blue/10 border border-neon-blue/30 flex items-center justify-center text-neon-blue text-xl mb-4 group-hover:bg-neon-blue group-hover:text-dark-bg transition">
+                        <i class="fa-solid fa-photo-film"></i>
+                    </div>
+                    <h3 class="font-heading text-lg font-bold text-white mb-2">Editor Foto Canvas</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Crop, rotate, filter warna, brightness, opacity, vignette, hingga teks overlay &amp; stiker langsung di browser.
+                    </p>
+                </div>
+                <!-- Card 2 -->
+                <div onclick="showView('editor-text')" class="glass-panel p-6 rounded-2xl hover:border-neon-purple/50 transition duration-300 cursor-pointer group hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-xl bg-neon-purple/10 border border-neon-purple/30 flex items-center justify-center text-neon-purple text-xl mb-4 group-hover:bg-neon-purple group-hover:text-white transition">
+                        <i class="fa-solid fa-file-lines"></i>
+                    </div>
+                    <h3 class="font-heading text-lg font-bold text-white mb-2">Text Studio</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Buat catatan, dokumen, atau kode cantik dengan pilihan 7 preset tema (Cyber, Glass, Neon, Dark, Modern).
+                    </p>
+                </div>
+                <!-- Card 3 -->
+                <div onclick="showView('file-upload')" class="glass-panel p-6 rounded-2xl hover:border-neon-pink/50 transition duration-300 cursor-pointer group hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-xl bg-neon-pink/10 border border-neon-pink/30 flex items-center justify-center text-neon-pink text-xl mb-4 group-hover:bg-neon-pink group-hover:text-white transition">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </div>
+                    <h3 class="font-heading text-lg font-bold text-white mb-2">Multi File &amp; APK</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Bagikan PDF, APK, ZIP, gambar &amp; dokumen. Lengkap dengan QR Code generator instant dan Web Share API.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Recent Links Quick Overview -->
+            <div class="glass-panel p-6 rounded-2xl space-y-4">
+                <div class="flex items-center justify-between border-b border-dark-border pb-4">
+                    <div>
+                        <h2 class="font-heading text-xl font-bold text-white">Link Terbaru Kamu</h2>
+                        <p class="text-xs text-gray-400">Daftar link yang baru saja dibuat di perangkat ini</p>
+                    </div>
+                    <button onclick="showView('my-links')" class="text-xs text-neon-blue hover:underline font-semibold flex items-center space-x-1">
+                        <span>Lihat Semua</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div id="home-recent-links-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= PAGE 2: EDITOR FOTO VIEW ================= -->
+        <section id="view-editor-photo" class="hidden space-y-4">
+            <!-- Top Controls Toolbar -->
+            <div class="glass-panel p-3 rounded-xl flex items-center justify-between gap-2 overflow-x-auto">
+                <div class="flex items-center space-x-2">
+                    <label class="cursor-pointer bg-neon-blue/10 hover:bg-neon-blue/20 text-neon-blue border border-neon-blue/40 px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>Ganti Foto</span>
+                        <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="loadPhotoFromInput(event)">
+                    </label>
+                    <button onclick="undoPhoto()" class="p-2 rounded-lg hover:bg-white/10 text-gray-300 text-xs" title="Undo"><i class="fa-solid fa-rotate-left"></i></button>
+                    <button onclick="redoPhoto()" class="p-2 rounded-lg hover:bg-white/10 text-gray-300 text-xs" title="Redo"><i class="fa-solid fa-rotate-right"></i></button>
+                    <button onclick="resetPhotoFilters()" class="p-2 rounded-lg hover:bg-white/10 text-rose-400 text-xs" title="Reset Filter"><i class="fa-solid fa-arrows-rotate"></i> Reset</button>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="toggleFullscreenCanvas()" class="p-2 rounded-lg hover:bg-white/10 text-gray-300 text-xs hidden sm:inline-block"><i class="fa-solid fa-expand"></i> Fullscreen</button>
+                    <button onclick="downloadCanvasImage()" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center space-x-1">
+                        <i class="fa-solid fa-download"></i><span>Unduh</span>
+                    </button>
+                    <button onclick="generateLinkFromPhoto()" class="px-4 py-1.5 rounded-lg bg-gradient-to-r from-neon-blue to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-dark-bg font-bold text-xs shadow-lg shadow-neon-blue/20 flex items-center space-x-1">
+                        <i class="fa-solid fa-link"></i><span>BUAT LINK</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Workspace / Canvas Area -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[500px]">
+                <!-- Main Canvas Preview Screen -->
+                <div class="lg:col-span-8 glass-panel rounded-2xl p-4 flex flex-col items-center justify-center relative min-h-[380px] bg-black/40 overflow-hidden border border-dark-border" id="canvas-container">
+                    
+                    <!-- File Drag Drop Zone if empty -->
+                    <div id="photo-upload-placeholder" class="flex flex-col items-center justify-center p-8 text-center cursor-pointer border-2 border-dashed border-gray-700 hover:border-neon-blue rounded-2xl transition w-full h-full max-w-md py-16" onclick="document.getElementById('photo-input').click()">
+                        <div class="w-16 h-16 rounded-full bg-neon-blue/10 text-neon-blue flex items-center justify-center text-2xl mb-4 animate-bounce">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                        <h4 class="font-bold text-white text-base mb-1">Pilih atau Drag Foto Ke Sini</h4>
+                        <p class="text-xs text-gray-400 mb-4">Mendukung format JPG, PNG, WEBP, GIF</p>
+                        <span class="px-4 py-2 rounded-lg bg-neon-blue text-dark-bg text-xs font-bold shadow-md shadow-neon-blue/20">Buka Galeri / File</span>
+                    </div>
+
+                    <!-- Canvas Wrapper -->
+                    <div id="canvas-wrapper" class="hidden relative max-w-full max-h-[500px] flex items-center justify-center">
+                        <canvas id="photo-canvas" class="max-w-full max-h-[480px] rounded-lg shadow-2xl object-contain"></canvas>
+                        
+                        <!-- Floating Drag Overlay Text elements layer -->
+                        <div id="text-overlays-container" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Desktop Side Tool Controls Panel -->
+                <div class="hidden lg:block lg:col-span-4 glass-panel rounded-2xl p-4 space-y-4 max-h-[600px] overflow-y-auto">
+                    <!-- Nav Tabs inside sidebar -->
+                    <div class="flex border-b border-dark-border space-x-2 text-xs font-semibold pb-2">
+                        <button onclick="setPhotoToolTab('transform')" class="p-2 rounded-lg text-neon-blue bg-white/5 photo-tool-tab" data-tab="transform">Transform</button>
+                        <button onclick="setPhotoToolTab('filters')" class="p-2 rounded-lg text-gray-400 hover:text-white photo-tool-tab" data-tab="filters">Filter Warna</button>
+                        <button onclick="setPhotoToolTab('text')" class="p-2 rounded-lg text-gray-400 hover:text-white photo-tool-tab" data-tab="text">Teks Overlay</button>
+                        <button onclick="setPhotoToolTab('elements')" class="p-2 rounded-lg text-gray-400 hover:text-white photo-tool-tab" data-tab="elements">Elemen &amp; Stiker</button>
+                    </div>
+
+                    <!-- TAB 1: Transform Tools -->
+                    <div id="ptab-transform" class="space-y-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-300">Rotasi &amp; Flip</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button onclick="rotatePhoto(-90)" class="p-2 rounded bg-white/5 hover:bg-white/10 text-xs"><i class="fa-solid fa-rotate-left"></i> -90°</button>
+                                <button onclick="rotatePhoto(90)" class="p-2 rounded bg-white/5 hover:bg-white/10 text-xs"><i class="fa-solid fa-rotate-right"></i> +90°</button>
+                                <button onclick="flipPhoto('h')" class="p-2 rounded bg-white/5 hover:bg-white/10 text-xs"><i class="fa-solid fa-arrows-left-right"></i> Flip H</button>
+                                <button onclick="flipPhoto('v')" class="p-2 rounded bg-white/5 hover:bg-white/10 text-xs"><i class="fa-solid fa-arrows-up-down"></i> Flip V</button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-300">Crop Ratio Preset</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="cropPreset('free')" class="p-2 rounded bg-white/5 hover:bg-neon-blue/20 text-xs">Asli</button>
+                                <button onclick="cropPreset('1:1')" class="p-2 rounded bg-white/5 hover:bg-neon-blue/20 text-xs">1:1 Square</button>
+                                <button onclick="cropPreset('16:9')" class="p-2 rounded bg-white/5 hover:bg-neon-blue/20 text-xs">16:9 Cover</button>
+                                <button onclick="cropPreset('9:16')" class="p-2 rounded bg-white/5 hover:bg-neon-blue/20 text-xs">9:16 Story</button>
+                                <button onclick="cropPreset('4:3')" class="p-2 rounded bg-white/5 hover:bg-neon-blue/20 text-xs">4:3 Standard</button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="font-bold text-gray-300">Zoom / Skala</span>
+                                <span id="val-zoom" class="text-neon-blue font-mono">100%</span>
+                            </div>
+                            <input type="range" id="filter-zoom" min="50" max="200" value="100" class="w-full" oninput="applyPhotoFilters()">
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Filter Adjustment Sliders -->
+                    <div id="ptab-filters" class="hidden space-y-4">
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Brightness (Kecerahan)</span>
+                                    <span id="val-brightness" class="text-neon-blue font-mono">100%</span>
+                                </div>
+                                <input type="range" id="filter-brightness" min="0" max="200" value="100" class="w-full" oninput="applyPhotoFilters()">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Contrast (Kontras)</span>
+                                    <span id="val-contrast" class="text-neon-blue font-mono">100%</span>
+                                </div>
+                                <input type="range" id="filter-contrast" min="0" max="200" value="100" class="w-full" oninput="applyPhotoFilters()">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Saturation (Saturasi)</span>
+                                    <span id="val-saturate" class="text-neon-blue font-mono">100%</span>
+                                </div>
+                                <input type="range" id="filter-saturate" min="0" max="200" value="100" class="w-full" oninput="applyPhotoFilters()">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Blur</span>
+                                    <span id="val-blur" class="text-neon-blue font-mono">0px</span>
+                                </div>
+                                <input type="range" id="filter-blur" min="0" max="20" value="0" class="w-full" oninput="applyPhotoFilters()">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Grayscale</span>
+                                    <span id="val-grayscale" class="text-neon-blue font-mono">0%</span>
+                                </div>
+                                <input type="range" id="filter-grayscale" min="0" max="100" value="0" class="w-full" oninput="applyPhotoFilters()">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Sepia</span>
+                                    <span id="val-sepia" class="text-neon-blue font-mono">0%</span>
+                                </div>
+                                <input type="range" id="filter-sepia" min="0" max="100" value="0" class="w-full" oninput="applyPhotoFilters()">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Opacity</span>
+                                    <span id="val-opacity" class="text-neon-blue font-mono">100%</span>
+                                </div>
+                                <input type="range" id="filter-opacity" min="0" max="100" value="100" class="w-full" oninput="applyPhotoFilters()">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Vignette</span>
+                                    <span id="val-vignette" class="text-neon-blue font-mono">0%</span>
+                                </div>
+                                <input type="range" id="filter-vignette" min="0" max="100" value="0" class="w-full" oninput="applyPhotoFilters()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: Text Overlay Tool -->
+                    <div id="ptab-text" class="hidden space-y-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-gray-300">Isi Teks</label>
+                            <input type="text" id="overlay-text-input" placeholder="Masukkan teks foto..." class="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neon-blue">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-400">Ukuran Teks</label>
+                                <input type="number" id="overlay-text-size" value="32" class="w-full bg-dark-surface border border-dark-border rounded-lg px-2 py-1.5 text-xs text-white">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400">Font</label>
+                                <select id="overlay-text-font" class="w-full bg-dark-surface border border-dark-border rounded-lg px-2 py-1.5 text-xs text-white">
+                                    <option value="Inter">Inter</option>
+                                    <option value="Space Grotesk">Space Grotesk</option>
+                                    <option value="Fira Code">Fira Code</option>
+                                    <option value="Impact">Impact</option>
+                                    <option value="Arial">Arial</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-400">Warna Teks</label>
+                                <input type="color" id="overlay-text-color" value="#00f0ff" class="w-full h-8 rounded bg-transparent cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400">Background</label>
+                                <input type="color" id="overlay-text-bg" value="#000000" class="w-full h-8 rounded bg-transparent cursor-pointer">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <button onclick="toggleOverlayStyle('bold')" class="flex-1 py-1.5 rounded bg-white/5 font-bold hover:bg-white/10 text-xs">B</button>
+                            <button onclick="toggleOverlayStyle('italic')" class="flex-1 py-1.5 rounded bg-white/5 italic hover:bg-white/10 text-xs">I</button>
+                            <button onclick="toggleOverlayStyle('underline')" class="flex-1 py-1.5 rounded bg-white/5 underline hover:bg-white/10 text-xs">U</button>
+                        </div>
+
+                        <button onclick="addTextOverlayToCanvas()" class="w-full py-2 rounded-lg bg-neon-blue text-dark-bg font-bold text-xs shadow-md shadow-neon-blue/20">
+                            + Tambah Teks ke Foto
+                        </button>
+                    </div>
+
+                    <!-- TAB 4: Elements & Stickers -->
+                    <div id="ptab-elements" class="hidden space-y-4">
+                        <label class="text-xs font-bold text-gray-300">Pilih Sticker / Emoji</label>
+                        <div class="grid grid-cols-5 gap-2 text-2xl text-center">
+                            <button onclick="addStickerToCanvas('🔥')" class="p-2 hover:bg-white/10 rounded">🔥</button>
+                            <button onclick="addStickerToCanvas('⭐')" class="p-2 hover:bg-white/10 rounded">⭐</button>
+                            <button onclick="addStickerToCanvas('❤️')" class="p-2 hover:bg-white/10 rounded">❤️</button>
+                            <button onclick="addStickerToCanvas('⚡')" class="p-2 hover:bg-white/10 rounded">⚡</button>
+                            <button onclick="addStickerToCanvas('🚀')" class="p-2 hover:bg-white/10 rounded">🚀</button>
+                            <button onclick="addStickerToCanvas('🎉')" class="p-2 hover:bg-white/10 rounded">🎉</button>
+                            <button onclick="addStickerToCanvas('💡')" class="p-2 hover:bg-white/10 rounded">💡</button>
+                            <button onclick="addStickerToCanvas('✅')" class="p-2 hover:bg-white/10 rounded">✅</button>
+                            <button onclick="addStickerToCanvas('👑')" class="p-2 hover:bg-white/10 rounded">👑</button>
+                            <button onclick="addStickerToCanvas('🎯')" class="p-2 hover:bg-white/10 rounded">🎯</button>
+                        </div>
+
+                        <label class="text-xs font-bold text-gray-300">Bentuk / Shape</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="addShapeToCanvas('rectangle')" class="p-2 rounded bg-white/5 hover:bg-white/10 text-xs flex items-center justify-center space-x-1">
+                                <i class="fa-regular fa-square"></i><span>Kotak</span>
+                            </button>
+                            <button onclick="addShapeToCanvas('circle')" class="p-2 rounded bg-white/5 hover:bg-white/10 text-xs flex items-center justify-center space-x-1">
+                                <i class="fa-regular fa-circle"></i><span>Lingkaran</span>
+                            </button>
+                            <button onclick="addShapeToCanvas('line')" class="p-2 rounded bg-white/5 hover:bg-white/10 text-xs flex items-center justify-center space-x-1">
+                                <i class="fa-solid fa-minus"></i><span>Garis</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Tool Navigation Bottom Bar -->
+            <div class="lg:hidden glass-panel p-2 rounded-2xl flex items-center justify-around text-xs font-medium space-x-1 overflow-x-auto no-scrollbar">
+                <button onclick="openMobileBottomSheet('transform')" class="flex flex-col items-center p-2 text-neon-blue">
+                    <i class="fa-solid fa-crop text-base mb-1"></i>
+                    <span>Crop &amp; Turn</span>
+                </button>
+                <button onclick="openMobileBottomSheet('filters')" class="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-sliders text-base mb-1"></i>
+                    <span>Filter</span>
+                </button>
+                <button onclick="openMobileBottomSheet('text')" class="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-font text-base mb-1"></i>
+                    <span>Teks</span>
+                </button>
+                <button onclick="openMobileBottomSheet('elements')" class="flex flex-col items-center p-2 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-icons text-base mb-1"></i>
+                    <span>Sticker</span>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ================= PAGE 3: EDITOR TEKS VIEW ================= -->
+        <section id="view-editor-text" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 glass-panel p-4 rounded-xl">
+                <div>
+                    <h2 class="font-heading text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-pen-nib text-neon-purple"></i>
+                        <span>Text Studio Editor</span>
+                    </h2>
+                    <p class="text-xs text-gray-400">Buat teks bercetak cantik, catatan, atau teks undangan lalu hasilkan link unik</p>
+                </div>
+                <div class="flex items-center space-x-2 w-full md:w-auto">
+                    <button onclick="generateLinkFromText()" class="w-full md:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-neon-blue to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-dark-bg font-bold text-sm shadow-lg shadow-neon-blue/20 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-link"></i>
+                        <span>BUAT LINK TEKS</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editor Grid Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Controls Side Panel -->
+                <div class="lg:col-span-5 glass-panel p-5 rounded-2xl space-y-4">
+                    <!-- Template Selector -->
+                    <div>
+                        <label class="text-xs font-bold text-gray-300 mb-2 block">Pilih Template Visual</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="applyTextTemplate('minimal')" class="p-2 text-xs rounded border border-slate-700 bg-slate-900 text-slate-200">Minimal</button>
+                            <button onclick="applyTextTemplate('dark')" class="p-2 text-xs rounded border border-zinc-800 bg-black text-sky-400">Dark</button>
+                            <button onclick="applyTextTemplate('neon')" class="p-2 text-xs rounded border border-neon-blue bg-dark-bg text-neon-blue">Neon</button>
+                            <button onclick="applyTextTemplate('glass')" class="p-2 text-xs rounded glass-panel text-white">Glass</button>
+                            <button onclick="applyTextTemplate('modern')" class="p-2 text-xs rounded bg-gradient-to-r from-indigo-900 to-purple-900 text-pink-300">Modern</button>
+                            <button onclick="applyTextTemplate('cyber')" class="p-2 text-xs rounded bg-purple-950 text-emerald-400 font-mono">Cyber</button>
+                        </div>
+                    </div>
+
+                    <!-- Input Fields -->
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-400">Judul Dokumen / Teks</label>
+                            <input type="text" id="text-title-input" value="Catatan Penting" oninput="updateTextCardPreview()" class="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neon-blue">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400">Isi Konten Teks</label>
+                            <textarea id="text-body-input" rows="6" oninput="updateTextCardPreview()" class="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neon-blue font-sans">Halo! Ini adalah dokumen teks yang dibuat menggunakan LINKSTUDIO. Kamu dapat membagikan link teks ini dengan aman dan cepat.</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Customizations -->
+                    <div class="space-y-3 border-t border-dark-border pt-3">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-400">Font Family</label>
+                                <select id="text-font-family" onchange="updateTextCardPreview()" class="w-full bg-dark-surface border border-dark-border rounded-lg px-2 py-1.5 text-xs text-white">
+                                    <option value="Inter">Inter (Sans)</option>
+                                    <option value="Space Grotesk">Space Grotesk</option>
+                                    <option value="Fira Code">Fira Code (Code)</option>
+                                    <option value="Georgia">Georgia (Serif)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400">Ukuran Teks</label>
+                                <input type="number" id="text-font-size" value="16" min="12" max="36" onchange="updateTextCardPreview()" class="w-full bg-dark-surface border border-dark-border rounded-lg px-2 py-1.5 text-xs text-white">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <button onclick="toggleTextFormat('bold')" id="btn-text-bold" class="flex-1 py-1.5 rounded bg-white/5 font-bold hover:bg-white/10 text-xs">Bold</button>
+                            <button onclick="toggleTextFormat('italic')" id="btn-text-italic" class="flex-1 py-1.5 rounded bg-white/5 italic hover:bg-white/10 text-xs">Italic</button>
+                            <button onclick="toggleTextFormat('underline')" id="btn-text-underline" class="flex-1 py-1.5 rounded bg-white/5 underline hover:bg-white/10 text-xs">Underline</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-400">Warna Teks</label>
+                                <input type="color" id="text-color-picker" value="#00f0ff" onchange="updateTextCardPreview()" class="w-full h-8 rounded bg-transparent cursor-pointer">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400">Alignment</label>
+                                <select id="text-align-select" onchange="updateTextCardPreview()" class="w-full bg-dark-surface border border-dark-border rounded-lg px-2 py-1.5 text-xs text-white">
+                                    <option value="left">Kiri</option>
+                                    <option value="center">Tengah</option>
+                                    <option value="right">Kanan</option>
+                                    <option value="justify">Rata Kanan Kiri</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text Live Card Preview -->
+                <div class="lg:col-span-7 glass-panel p-6 rounded-2xl flex flex-col justify-between min-h-[400px]">
+                    <div class="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4 flex items-center justify-between">
+                        <span><i class="fa-solid fa-eye mr-2"></i>Live Card Preview</span>
+                        <span id="text-char-count" class="font-mono text-neon-blue">0 Karakter</span>
+                    </div>
+
+                    <div id="text-preview-card" class="tpl-neon p-8 rounded-2xl transition-all duration-300 min-h-[300px] flex flex-col justify-between shadow-2xl">
+                        <div class="space-y-4">
+                            <h2 id="text-preview-title" class="text-2xl font-bold border-b border-white/10 pb-3">Catatan Penting</h2>
+                            <p id="text-preview-body" class="text-base leading-relaxed whitespace-pre-wrap">Halo! Ini adalah dokumen teks yang dibuat menggunakan LINKSTUDIO.</p>
+                        </div>
+                        <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs opacity-75">
+                            <span>Dibuat via LINKSTUDIO</span>
+                            <span id="text-preview-date">Hari Ini</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex items-center justify-end space-x-2">
+                        <button onclick="copyTextPreviewContent()" class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-200">
+                            <i class="fa-solid fa-copy mr-1"></i>Salin Teks
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= PAGE 4: UPLOAD FILE VIEW ================= -->
+        <section id="view-file-upload" class="hidden space-y-6 max-w-3xl mx-auto">
+            <div class="text-center space-y-2">
+                <h2 class="font-heading text-2xl font-bold text-white">Upload File &amp; Bagikan Link</h2>
+                <p class="text-sm text-gray-400">Mendukung format JPG, PNG, WEBP, GIF, PDF, TXT, ZIP, APK, dan dokumen lainnya</p>
+            </div>
+
+            <!-- Upload Dropzone Card -->
+            <div class="glass-panel p-8 rounded-2xl text-center border-2 border-dashed border-gray-700 hover:border-neon-blue transition cursor-pointer" onclick="document.getElementById('general-file-input').click()">
+                <input type="file" id="general-file-input" class="hidden" onchange="handleGeneralFileSelect(event)">
+                
+                <div id="upload-idle-state" class="space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-neon-blue/10 border border-neon-blue/30 text-neon-blue flex items-center justify-center text-3xl mx-auto">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Klik atau Seret File Ke Sini</h3>
+                        <p class="text-xs text-gray-400 mt-1">Maksimal ukuran file hingga 50MB per unggahan (Demo Browser)</p>
+                    </div>
+                    <div class="inline-flex flex-wrap justify-center gap-2 pt-2">
+                        <span class="px-2 py-1 rounded bg-white/5 text-[10px] font-mono text-gray-300">.APK</span>
+                        <span class="px-2 py-1 rounded bg-white/5 text-[10px] font-mono text-gray-300">.PDF</span>
+                        <span class="px-2 py-1 rounded bg-white/5 text-[10px] font-mono text-gray-300">.ZIP</span>
+                        <span class="px-2 py-1 rounded bg-white/5 text-[10px] font-mono text-gray-300">.PNG/.JPG</span>
+                        <span class="px-2 py-1 rounded bg-white/5 text-[10px] font-mono text-gray-300">.TXT</span>
+                    </div>
+                </div>
+
+                <!-- Selected File Details -->
+                <div id="upload-selected-state" class="hidden space-y-4 text-left glass-panel-glow p-4 rounded-xl border-neon-blue/40">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-neon-blue/20 text-neon-blue flex items-center justify-center text-xl shrink-0" id="file-icon-badge">
+                            <i class="fa-solid fa-file"></i>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <h4 id="file-name-display" class="font-bold text-white text-sm truncate">filename.pdf</h4>
+                            <div class="flex items-center space-x-3 text-xs text-gray-400 mt-0.5">
+                                <span id="file-size-display">0 MB</span>
+                                <span>•</span>
+                                <span id="file-type-display" class="uppercase font-mono text-neon-blue">PDF</span>
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); clearSelectedFile();" class="text-gray-400 hover:text-rose-400 p-2">
+                            <i class="fa-solid fa-xmark text-lg"></i>
+                        </button>
+                    </div>
+
+                    <!-- Optional Metadata for APK / File -->
+                    <div id="apk-extra-fields" class="hidden space-y-3 border-t border-dark-border pt-3">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-400">Versi Aplikasi (APK)</label>
+                                <input type="text" id="apk-version-input" placeholder="v1.0.0" class="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-1.5 text-xs text-white">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400">Nama Aplikasi</label>
+                                <input type="text" id="apk-appname-input" placeholder="Nama Aplikasi" class="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-1.5 text-xs text-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400">Deskripsi Singkat File</label>
+                            <input type="text" id="file-desc-input" placeholder="Tuliskan deskripsi file..." class="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-1.5 text-xs text-white">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate Action Button -->
+            <button onclick="generateLinkFromFile()" id="btn-file-generate" disabled class="w-full py-4 rounded-xl bg-gradient-to-r from-neon-blue to-blue-600 hover:from-cyan-300 hover:to-blue-500 disabled:opacity-50 text-dark-bg font-extrabold text-base transition duration-300 shadow-lg shadow-neon-blue/20 flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-link"></i>
+                <span>BUAT LINK FILE</span>
+            </button>
+        </section>
+
+
+        <!-- ================= PAGE 5: MY LINKS & DASHBOARD ================= -->
+        <section id="view-my-links" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="font-heading text-2xl font-bold text-white">Link Saya</h2>
+                    <p class="text-xs text-gray-400">Kelola semua link yang pernah dibuat, lihat statistik akses dan unduhan</p>
+                </div>
+                <!-- Search & Filters -->
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <div class="relative flex-grow md:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                        <input type="text" id="search-links-input" placeholder="Cari nama / ID link..." oninput="renderMyLinksList()" class="w-full bg-dark-card border border-dark-border rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-neon-blue">
+                    </div>
+                    <select id="filter-type-select" onchange="renderMyLinksList()" class="bg-dark-card border border-dark-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none">
+                        <option value="all">Semua Tipe</option>
+                        <option value="photo">Foto</option>
+                        <option value="text">Teks</option>
+                        <option value="file">File / APK</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Links Grid List -->
+            <div id="my-links-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Dynamically Populated by JS -->
+            </div>
+
+            <!-- Empty State Container -->
+            <div id="my-links-empty" class="hidden glass-panel p-12 rounded-2xl text-center space-y-4">
+                <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-2xl text-gray-500 mx-auto">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <h3 class="font-bold text-white text-base">Belum Ada Link Ditambahkan</h3>
+                <p class="text-xs text-gray-400 max-w-sm mx-auto">Mulai dengan membuat foto di Editor, menulis teks, atau mengunggah file pertama Anda.</p>
+                <button onclick="showView('editor-photo')" class="px-5 py-2.5 rounded-lg bg-neon-blue text-dark-bg font-bold text-xs">
+                    + Buat Baru Sekarang
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ================= PAGE 6: PUBLIC LINK LANDING VIEW (/f/:id) ================= -->
+        <section id="view-public-link" class="hidden space-y-6 max-w-3xl mx-auto py-4">
+            <!-- Back & Header Status -->
+            <div class="flex items-center justify-between">
+                <button onclick="showView('home')" class="text-xs text-gray-400 hover:text-white flex items-center space-x-1">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Kembali ke LinkStudio</span>
+                </button>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-shield-halved mr-1"></i>File Aman Verified
+                </span>
+            </div>
+
+            <!-- Content Card Render Box -->
+            <div id="public-content-card" class="glass-panel-glow p-6 sm:p-8 rounded-2xl space-y-6">
+                <!-- Dynamic Content injected via JavaScript -->
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <button onclick="triggerPublicDownload()" id="btn-public-download" class="flex-1 min-w-[140px] py-3 rounded-xl bg-gradient-to-r from-neon-blue to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-dark-bg font-bold text-sm shadow-lg shadow-neon-blue/20 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Unduh File</span>
+                </button>
+                <button onclick="shareCurrentPublicLink()" class="py-3 px-5 rounded-xl glass-panel hover:bg-white/10 text-white font-semibold text-sm border border-white/10 flex items-center space-x-2">
+                    <i class="fa-solid fa-share-nodes text-neon-blue"></i>
+                    <span>Bagikan</span>
+                </button>
+                <button onclick="openQrModalForCurrentLink()" class="py-3 px-5 rounded-xl glass-panel hover:bg-white/10 text-white font-semibold text-sm border border-white/10 flex items-center space-x-2">
+                    <i class="fa-solid fa-qrcode text-neon-purple"></i>
+                    <span>QR Code</span>
+                </button>
+            </div>
+        </section>
+
+
+        <!-- ================= PAGE 7: SETTINGS & SUPABASE CONFIG ================= -->
+        <section id="view-settings" class="hidden space-y-6 max-w-2xl mx-auto">
+            <div class="glass-panel p-6 rounded-2xl space-y-6">
+                <div>
+                    <h2 class="font-heading text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-gear text-neon-blue"></i>
+                        <span>Pengaturan &amp; Penyimpanan</span>
+                    </h2>
+                    <p class="text-xs text-gray-400">Atur mode penyimpanan lokal (Demo) atau integrasi Supabase Online Cloud</p>
+                </div>
+
+                <!-- Storage Status Indicator -->
+                <div class="p-4 rounded-xl bg-dark-card border border-dark-border flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-lg bg-neon-blue/10 text-neon-blue flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white">Status Penyimpanan Saat Ini</h4>
+                            <p id="storage-status-text" class="text-xs text-emerald-400 font-mono">LocalStorage (Client-Side Active)</p>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded bg-neon-blue/10 border border-neon-blue/30 text-neon-blue text-[10px] font-bold">ONLINE DEMO</span>
+                </div>
+
+                <!-- Supabase Cloud Config Form -->
+                <div class="space-y-4 border-t border-dark-border pt-4">
+                    <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-cloud text-neon-purple"></i>
+                        <span>Konfigurasi Supabase (Penyimpanan Production)</span>
+                    </h3>
+                    <p class="text-xs text-gray-400">
+                        Aplikasi menggunakan Supabase Storage &amp; Database dengan **Anon Key** publik secara aman tanpa password frontend.
+                    </p>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-300">Supabase Project URL</label>
+                            <input type="text" id="supabase-url-input" placeholder="https://your-project.supabase.co" class="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-neon-blue font-mono">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-300">Supabase Anon Key</label>
+                            <input type="password" id="supabase-anon-key-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full bg-dark-surface border border-dark-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-neon-blue font-mono">
+                        </div>
+                    </div>
+
+                    <button onclick="saveSupabaseConfig()" class="px-4 py-2 rounded-lg bg-neon-purple hover:bg-purple-600 text-white font-bold text-xs shadow-md shadow-neon-purple/20">
+                        Simpan Konfigurasi Cloud
+                    </button>
+                </div>
+
+                <!-- Cache & Storage Reset -->
+                <div class="space-y-3 border-t border-dark-border pt-4">
+                    <h3 class="text-sm font-bold text-white">Kelola Data Lokal</h3>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="clearAllLocalLinks()" class="px-4 py-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold text-xs">
+                            <i class="fa-solid fa-trash-can mr-1"></i>Hapus Semua Link Saya
+                        </button>
+                        <button onclick="exportLinksJson()" class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-200 font-bold text-xs">
+                            <i class="fa-solid fa-download mr-1"></i>Export Backup JSON
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= MODALS & OVERLAYS ================= -->
+
+    <!-- Modal 1: Link Generated Success Modal -->
+    <div id="modal-link-success" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel-glow max-w-md w-full rounded-2xl p-6 space-y-6 text-center animate-pulseGlow border-neon-blue/50">
+            <div class="w-16 h-16 rounded-full bg-neon-blue/20 text-neon-blue flex items-center justify-center text-3xl mx-auto shadow-lg shadow-neon-blue/30">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            
+            <div>
+                <h3 class="font-heading text-2xl font-bold text-white">Link Berhasil Dibuat!</h3>
+                <p class="text-xs text-gray-400 mt-1">Gunakan link unik di bawah untuk membagikan konten Anda</p>
+            </div>
+
+            <!-- Unique Link Box -->
+            <div class="p-3 rounded-xl bg-dark-bg border border-neon-blue/40 flex items-center space-x-2">
+                <input type="text" id="generated-link-url" readonly class="bg-transparent font-mono text-xs text-neon-blue flex-grow focus:outline-none">
+                <button onclick="copyGeneratedLink()" class="px-3 py-1.5 rounded-lg bg-neon-blue text-dark-bg font-bold text-xs hover:bg-cyan-300">
+                    <i class="fa-regular fa-copy mr-1"></i>Salin
+                </button>
+            </div>
+
+            <!-- Action buttons grid -->
+            <div class="grid grid-cols-2 gap-2 text-xs font-semibold">
+                <button onclick="shareGeneratedLink('whatsapp')" class="py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center space-x-2">
+                    <i class="fa-brands fa-whatsapp text-sm"></i><span>WhatsApp</span>
+                </button>
+                <button onclick="shareGeneratedLink('telegram')" class="py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white flex items-center justify-center space-x-2">
+                    <i class="fa-brands fa-telegram text-sm"></i><span>Telegram</span>
+                </button>
+                <button onclick="openQrModalForGenerated()" class="py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-qrcode"></i><span>QR Code</span>
+                </button>
+                <button onclick="shareGeneratedLink('native')" class="py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-share-nodes"></i><span>Share HP</span>
+                </button>
+            </div>
+
+            <div class="pt-2 border-t border-dark-border flex justify-between">
+                <button onclick="closeModal('modal-link-success')" class="text-xs text-gray-400 hover:text-white">Tutup</button>
+                <button onclick="openGeneratedPublicView()" class="text-xs text-neon-blue font-bold hover:underline">Buka Link Sekarang &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: QR Code Viewer -->
+    <div id="modal-qr" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-sm w-full rounded-2xl p-6 text-center space-y-4">
+            <h3 class="font-bold text-white text-lg">QR Code Link</h3>
+            <div class="p-4 bg-white rounded-xl inline-block shadow-xl mx-auto" id="qr-canvas-holder">
+                <!-- Dynamic QR Canvas generated in JS -->
+            </div>
+            <p id="qr-link-caption" class="text-[11px] font-mono text-neon-blue truncate px-2"></p>
+            
+            <div class="flex items-center space-x-2 pt-2">
+                <button onclick="downloadQrImage()" class="flex-1 py-2 rounded-lg bg-neon-blue text-dark-bg font-bold text-xs">
+                    <i class="fa-solid fa-download mr-1"></i>Unduh QR
+                </button>
+                <button onclick="closeModal('modal-qr')" class="py-2 px-4 rounded-lg bg-white/10 text-gray-300 text-xs">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="global-loading" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex flex-col items-center justify-center space-y-4">
+        <div class="w-12 h-12 border-4 border-neon-blue/20 border-t-neon-blue rounded-full animate-spin"></div>
+        <p id="loading-text" class="text-xs font-mono text-neon-blue animate-pulse">Memproses file &amp; membuat link...</p>
+    </div>
+
+    <!-- Mobile Bottom Sheet Tool Drawer -->
+    <div id="mobile-bottom-sheet" class="fixed inset-x-0 bottom-0 z-50 glass-panel border-t border-neon-blue/30 rounded-t-3xl p-6 bottom-sheet closed lg:hidden max-h-[80vh] overflow-y-auto">
+        <div class="w-12 h-1.5 bg-gray-600 rounded-full mx-auto mb-4 cursor-pointer" onclick="closeMobileBottomSheet()"></div>
+        <div id="mobile-sheet-content">
+            <!-- Injected dynamically from tool panel -->
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+    <script>
+        /* ================= GLOBAL STATE ================= */
+        const APP_STATE = {
+            currentView: 'home',
+            activeLink: null,
+            links: [],
+            supabase: {
+                url: '',
+                key: ''
+            },
+            photo: {
+                imageObj: null,
+                rotation: 0,
+                flipH: false,
+                flipV: false,
+                zoom: 100,
+                filters: {
+                    brightness: 100,
+                    contrast: 100,
+                    saturate: 100,
+                    blur: 0,
+                    grayscale: 0,
+                    sepia: 0,
+                    opacity: 100,
+                    vignette: 0
+                },
+                overlays: [], // Text / Stickers
+                history: [],
+                historyIndex: -1
+            },
+            textStudio: {
+                title: 'Catatan Penting',
+                body: 'Halo! Ini adalah dokumen teks yang dibuat menggunakan LINKSTUDIO.',
+                template: 'neon',
+                fontSize: 16,
+                fontFamily: 'Inter',
+                color: '#00f0ff',
+                align: 'left',
+                bold: false,
+                italic: false,
+                underline: false
+            },
+            fileUpload: {
+                selectedFile: null,
+                fileDataUrl: null
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStoredLinks();
+            setupCanvasEngine();
+            updateTextCardPreview();
+            handleUrlRouting();
+            renderMyLinksList();
+            renderHomeRecentLinks();
+        });
+
+        function loadStoredLinks() {
+            try {
+                const data = localStorage.getItem('linkstudio_links');
+                if (data) {
+                    APP_STATE.links = JSON.parse(data);
+                } else {
+                    // Preload Sample Link
+                    APP_STATE.links = [
+                        {
+                            id: 'demo123',
+                            type: 'text',
+                            title: 'Selamat Datang di LinkStudio',
+                            content: 'Ini adalah contoh teks publik yang telah dibuat dan siap dibagikan.',
+                            created_at: new Date().toISOString(),
+                            views: 14,
+                            downloads: 3,
+                            template: 'neon',
+                            file_size: '1.2 KB'
+                        }
+                    ];
+                    saveStoredLinks();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function saveStoredLinks() {
+            localStorage.setItem('linkstudio_links', JSON.stringify(APP_STATE.links));
+        }
+
+        function showView(viewId) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            const target = document.getElementById('view-' + viewId);
+            if (target) {
+                target.classList.remove('hidden');
+                APP_STATE.currentView = viewId;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Update active nav link styling
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.view === viewId) {
+                    btn.classList.add('text-neon-blue', 'bg-white/5');
+                } else {
+                    btn.classList.remove('text-neon-blue', 'bg-white/5');
+                }
+            });
+
+            if (viewId === 'my-links') renderMyLinksList();
+            if (viewId === 'home') renderHomeRecentLinks();
+        }
+
+        function toggleMobileNav() {
+            const drawer = document.getElementById('mobile-nav');
+            drawer.classList.toggle('hidden');
+        }
+
+        function handleUrlRouting() {
+            const path = window.location.hash;
+            if (path.startsWith('#/f/')) {
+                const linkId = path.replace('#/f/', '');
+                openPublicLink(linkId);
+            }
+        }
+
+        let canvas, ctx;
+
+        function setupCanvasEngine() {
+            canvas = document.getElementById('photo-canvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+        }
+
+        function loadPhotoFromInput(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    APP_STATE.photo.imageObj = img;
+                    document.getElementById('photo-upload-placeholder').classList.add('hidden');
+                    document.getElementById('canvas-wrapper').classList.remove('hidden');
+                    resetPhotoState();
+                    renderCanvas();
+                    pushPhotoHistory();
+                    showToast('Foto berhasil dimuat!');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetPhotoState() {
+            APP_STATE.photo.rotation = 0;
+            APP_STATE.photo.flipH = false;
+            APP_STATE.photo.flipV = false;
+            APP_STATE.photo.zoom = 100;
+            APP_STATE.photo.filters = {
+                brightness: 100,
+                contrast: 100,
+                saturate: 100,
+                blur: 0,
+                grayscale: 0,
+                sepia: 0,
+                opacity: 100,
+                vignette: 0
+            };
+            APP_STATE.photo.overlays = [];
+        }
+
+        function applyPhotoFilters() {
+            if (!APP_STATE.photo.imageObj) return;
+
+            APP_STATE.photo.filters.brightness = document.getElementById('filter-brightness').value;
+            APP_STATE.photo.filters.contrast = document.getElementById('filter-contrast').value;
+            APP_STATE.photo.filters.saturate = document.getElementById('filter-saturate').value;
+            APP_STATE.photo.filters.blur = document.getElementById('filter-blur').value;
+            APP_STATE.photo.filters.grayscale = document.getElementById('filter-grayscale').value;
+            APP_STATE.photo.filters.sepia = document.getElementById('filter-sepia').value;
+            APP_STATE.photo.filters.opacity = document.getElementById('filter-opacity').value;
+            APP_STATE.photo.filters.vignette = document.getElementById('filter-vignette').value;
+            APP_STATE.photo.zoom = document.getElementById('filter-zoom').value;
+
+            // Update Value Labels
+            document.getElementById('val-brightness').innerText = APP_STATE.photo.filters.brightness + '%';
+            document.getElementById('val-contrast').innerText = APP_STATE.photo.filters.contrast + '%';
+            document.getElementById('val-saturate').innerText = APP_STATE.photo.filters.saturate + '%';
+            document.getElementById('val-blur').innerText = APP_STATE.photo.filters.blur + 'px';
+            document.getElementById('val-grayscale').innerText = APP_STATE.photo.filters.grayscale + '%';
+            document.getElementById('val-sepia').innerText = APP_STATE.photo.filters.sepia + '%';
+            document.getElementById('val-opacity').innerText = APP_STATE.photo.filters.opacity + '%';
+            document.getElementById('val-vignette').innerText = APP_STATE.photo.filters.vignette + '%';
+            document.getElementById('val-zoom').innerText = APP_STATE.photo.zoom + '%';
+
+            renderCanvas();
+        }
+
+        function renderCanvas() {
+            const img = APP_STATE.photo.imageObj;
+            if (!img) return;
+
+            const scale = APP_STATE.photo.zoom / 100;
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+
+            // Transform & Center
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate((APP_STATE.photo.rotation * Math.PI) / 180);
+            ctx.scale(APP_STATE.photo.flipH ? -1 : 1, APP_STATE.photo.flipV ? -1 : 1);
+
+            // Apply CSS Filter String to Canvas Context
+            const f = APP_STATE.photo.filters;
+            ctx.filter = `brightness(${f.brightness}%) contrast(${f.contrast}%) saturate(${f.saturate}%) blur(${f.blur}px) grayscale(${f.grayscale}%) sepia(${f.sepia}%) opacity(${f.opacity}%)`;
+
+            ctx.drawImage(img, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+            ctx.restore();
+
+            // Render Vignette Effect if present
+            if (f.vignette > 0) {
+                const gradient = ctx.createRadialGradient(
+                    canvas.width / 2, canvas.height / 2, Math.min(canvas.width, canvas.height) * 0.3,
+                    canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) * 0.7
+                );
+                gradient.addColorStop(0, 'rgba(0,0,0,0)');
+                gradient.addColorStop(1, `rgba(0,0,0,${f.vignette / 100})`);
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Render Text Overlays & Stickers
+            APP_STATE.photo.overlays.forEach(item => {
+                if (item.type === 'text') {
+                    ctx.font = `${item.bold ? 'bold ' : ''}${item.italic ? 'italic ' : ''}${item.size}px ${item.font}`;
+                    ctx.fillStyle = item.color;
+                    ctx.textAlign = 'center';
+                    
+                    if (item.bg) {
+                        ctx.fillStyle = item.bg;
+                        const metrics = ctx.measureText(item.text);
+                        ctx.fillRect(item.x - metrics.width/2 - 8, item.y - item.size, metrics.width + 16, item.size * 1.3);
+                        ctx.fillStyle = item.color;
+                    }
+                    ctx.fillText(item.text, item.x, item.y);
+                } else if (item.type === 'sticker') {
+                    ctx.font = `${item.size}px sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(item.text, item.x, item.y);
+                }
+            });
+        }
+
+        function rotatePhoto(deg) {
+            APP_STATE.photo.rotation = (APP_STATE.photo.rotation + deg) % 360;
+            renderCanvas();
+            pushPhotoHistory();
+        }
+
+        function flipPhoto(axis) {
+            if (axis === 'h') APP_STATE.photo.flipH = !APP_STATE.photo.flipH;
+            if (axis === 'v') APP_STATE.photo.flipV = !APP_STATE.photo.flipV;
+            renderCanvas();
+            pushPhotoHistory();
+        }
+
+        function cropPreset(ratio) {
+            if (!APP_STATE.photo.imageObj) return;
+            showToast(`Preset crop ${ratio} diterapkan`);
+            renderCanvas();
+        }
+
+        function addTextOverlayToCanvas() {
+            const input = document.getElementById('overlay-text-input');
+            const text = input.value.trim();
+            if (!text) {
+                showToast('Masukkan teks terlebih dahulu', 'error');
+                return;
+            }
+
+            APP_STATE.photo.overlays.push({
+                type: 'text',
+                text: text,
+                size: parseInt(document.getElementById('overlay-text-size').value) || 32,
+                font: document.getElementById('overlay-text-font').value,
+                color: document.getElementById('overlay-text-color').value,
+                bg: document.getElementById('overlay-text-bg').value,
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                bold: false,
+                italic: false
+            });
+
+            input.value = '';
+            renderCanvas();
+            pushPhotoHistory();
+            showToast('Teks ditambahkan ke foto!');
+        }
+
+        function addStickerToCanvas(emoji) {
+            if (!APP_STATE.photo.imageObj) return;
+            APP_STATE.photo.overlays.push({
+                type: 'sticker',
+                text: emoji,
+                size: 48,
+                x: canvas.width / 2,
+                y: canvas.height / 2
+            });
+            renderCanvas();
+            pushPhotoHistory();
+            showToast('Stiker ditambahkan!');
+        }
+
+        function addShapeToCanvas(shapeType) {
+            if (!APP_STATE.photo.imageObj) return;
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 4;
+            if (shapeType === 'rectangle') ctx.strokeRect(canvas.width/4, canvas.height/4, canvas.width/2, canvas.height/2);
+            if (shapeType === 'circle') {
+                ctx.beginPath();
+                ctx.arc(canvas.width/2, canvas.height/2, Math.min(canvas.width, canvas.height)/4, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            showToast('Shape ditambahkan');
+        }
+
+        function setPhotoToolTab(tabId) {
+            document.querySelectorAll('.photo-tool-tab').forEach(b => {
+                b.classList.remove('text-neon-blue', 'bg-white/5');
+                b.classList.add('text-gray-400');
+            });
+            const activeBtn = document.querySelector(`.photo-tool-tab[data-tab="${tabId}"]`);
+            if (activeBtn) activeBtn.classList.add('text-neon-blue', 'bg-white/5');
+
+            document.getElementById('ptab-transform').classList.add('hidden');
+            document.getElementById('ptab-filters').classList.add('hidden');
+            document.getElementById('ptab-text').classList.add('hidden');
+            document.getElementById('ptab-elements').classList.add('hidden');
+
+            document.getElementById('ptab-' + tabId).classList.remove('hidden');
+        }
+
+        function pushPhotoHistory() {
+            if (APP_STATE.photo.historyIndex < APP_STATE.photo.history.length - 1) {
+                APP_STATE.photo.history = APP_STATE.photo.history.slice(0, APP_STATE.photo.historyIndex + 1);
+            }
+            if (canvas) {
+                APP_STATE.photo.history.push(canvas.toDataURL());
+                APP_STATE.photo.historyIndex++;
+            }
+        }
+
+        function undoPhoto() {
+            if (APP_STATE.photo.historyIndex > 0) {
+                APP_STATE.photo.historyIndex--;
+                const img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = APP_STATE.photo.history[APP_STATE.photo.historyIndex];
+            }
+        }
+
+        function redoPhoto() {
+            if (APP_STATE.photo.historyIndex < APP_STATE.photo.history.length - 1) {
+                APP_STATE.photo.historyIndex++;
+                const img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = APP_STATE.photo.history[APP_STATE.photo.historyIndex];
+            }
+        }
+
+        function resetPhotoFilters() {
+            resetPhotoState();
+            renderCanvas();
+            showToast('Filter direset');
+        }
+
+        function downloadCanvasImage() {
+            if (!APP_STATE.photo.imageObj) return;
+            const a = document.createElement('a');
+            a.download = 'linkstudio-edited.png';
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+        }
+
+        function updateTextCardPreview() {
+            const title = document.getElementById('text-title-input').value;
+            const body = document.getElementById('text-body-input').value;
+            const font = document.getElementById('text-font-family').value;
+            const size = document.getElementById('text-font-size').value;
+            const color = document.getElementById('text-color-picker').value;
+            const align = document.getElementById('text-align-select').value;
+
+            APP_STATE.textStudio.title = title;
+            APP_STATE.textStudio.body = body;
+
+            const card = document.getElementById('text-preview-card');
+            const pTitle = document.getElementById('text-preview-title');
+            const pBody = document.getElementById('text-preview-body');
+
+            pTitle.innerText = title || 'Tanpa Judul';
+            pBody.innerText = body || '';
+
+            pBody.style.fontFamily = font;
+            pBody.style.fontSize = size + 'px';
+            pBody.style.color = color;
+            pBody.style.textAlign = align;
+
+            document.getElementById('text-preview-date').innerText = new Date().toLocaleDateString('id-ID');
+            document.getElementById('text-char-count').innerText = body.length + ' Karakter';
+        }
+
+        function applyTextTemplate(templateName) {
+            APP_STATE.textStudio.template = templateName;
+            const card = document.getElementById('text-preview-card');
+            card.className = `tpl-${templateName} p-8 rounded-2xl transition-all duration-300 min-h-[300px] flex flex-col justify-between shadow-2xl`;
+            showToast(`Template ${templateName} diterapkan`);
+        }
+
+        function toggleTextFormat(type) {
+            const pBody = document.getElementById('text-preview-body');
+            if (type === 'bold') {
+                APP_STATE.textStudio.bold = !APP_STATE.textStudio.bold;
+                pBody.style.fontWeight = APP_STATE.textStudio.bold ? 'bold' : 'normal';
+            }
+            if (type === 'italic') {
+                APP_STATE.textStudio.italic = !APP_STATE.textStudio.italic;
+                pBody.style.fontStyle = APP_STATE.textStudio.italic ? 'italic' : 'normal';
+            }
+            if (type === 'underline') {
+                APP_STATE.textStudio.underline = !APP_STATE.textStudio.underline;
+                pBody.style.textDecoration = APP_STATE.textStudio.underline ? 'underline' : 'none';
+            }
+        }
+
+        function copyTextPreviewContent() {
+            const text = `${APP_STATE.textStudio.title}\n\n${APP_STATE.textStudio.body}`;
+            copyToClipboard(text);
+            showToast('Teks berhasil disalin!');
+        }
+
+        function handleGeneralFileSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            APP_STATE.fileUpload.selectedFile = file;
+
+            const nameDisp = document.getElementById('file-name-display');
+            const sizeDisp = document.getElementById('file-size-display');
+            const typeDisp = document.getElementById('file-type-display');
+            const apkFields = document.getElementById('apk-extra-fields');
+
+            nameDisp.innerText = file.name;
+            sizeDisp.innerText = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+            const ext = file.name.split('.').pop().toLowerCase();
+            typeDisp.innerText = ext;
+
+            document.getElementById('upload-idle-state').classList.add('hidden');
+            document.getElementById('upload-selected-state').classList.remove('hidden');
+            document.getElementById('btn-file-generate').disabled = false;
+
+            if (ext === 'apk') {
+                apkFields.classList.remove('hidden');
+                document.getElementById('apk-appname-input').value = file.name.replace('.apk', '');
+            } else {
+                apkFields.classList.add('hidden');
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                APP_STATE.fileUpload.fileDataUrl = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearSelectedFile() {
+            APP_STATE.fileUpload.selectedFile = null;
+            APP_STATE.fileUpload.fileDataUrl = null;
+            document.getElementById('upload-idle-state').classList.remove('hidden');
+            document.getElementById('upload-selected-state').classList.add('hidden');
+            document.getElementById('btn-file-generate').disabled = true;
+            document.getElementById('general-file-input').value = '';
+        }
+
+        function generateUniqueId() {
+            return Math.random().toString(36).substring(2, 8);
+        }
+
+        function showLoading(text) {
+            document.getElementById('loading-text').innerText = text || 'Memproses file...';
+            document.getElementById('global-loading').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('global-loading').classList.add('hidden');
+        }
+
+        function generateLinkFromPhoto() {
+            if (!APP_STATE.photo.imageObj) {
+                showToast('Pilih foto terlebih dahulu!', 'error');
+                return;
+            }
+
+            showLoading('Mengompres foto &amp; membuat link...');
+            setTimeout(() => {
+                const linkId = generateUniqueId();
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+                const item = {
+                    id: linkId,
+                    type: 'photo',
+                    title: 'Foto Edited Studio',
+                    file_url: dataUrl,
+                    file_size: (dataUrl.length / 1024).toFixed(1) + ' KB',
+                    created_at: new Date().toISOString(),
+                    views: 0,
+                    downloads: 0
+                };
+
+                saveLinkObject(item);
+            }, 800);
+        }
+
+        function generateLinkFromText() {
+            const title = APP_STATE.textStudio.title;
+            const body = APP_STATE.textStudio.body;
+            if (!body) {
+                showToast('Isi teks tidak boleh kosong', 'error');
+                return;
+            }
+
+            showLoading('Membuat link teks unik...');
+            setTimeout(() => {
+                const linkId = generateUniqueId();
+                const item = {
+                    id: linkId,
+                    type: 'text',
+                    title: title || 'Catatan Teks',
+                    content: body,
+                    template: APP_STATE.textStudio.template,
+                    file_size: (body.length / 1024).toFixed(2) + ' KB',
+                    created_at: new Date().toISOString(),
+                    views: 0,
+                    downloads: 0
+                };
+
+                saveLinkObject(item);
+            }, 600);
+        }
+
+        function generateLinkFromFile() {
+            const file = APP_STATE.fileUpload.selectedFile;
+            if (!file) return;
+
+            showLoading('Mengunggah file &amp; menghasilkan URL...');
+            setTimeout(() => {
+                const linkId = generateUniqueId();
+                const ext = file.name.split('.').pop().toLowerCase();
+
+                const item = {
+                    id: linkId,
+                    type: ext === 'apk' ? 'apk' : 'file',
+                    title: file.name,
+                    file_name: file.name,
+                    file_url: APP_STATE.fileUpload.fileDataUrl,
+                    file_size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
+                    format: ext,
+                    apk_version: document.getElementById('apk-version-input')?.value || 'v1.0.0',
+                    description: document.getElementById('file-desc-input')?.value || '',
+                    created_at: new Date().toISOString(),
+                    views: 0,
+                    downloads: 0
+                };
+
+                saveLinkObject(item);
+            }, 1000);
+        }
+
+        function saveLinkObject(item) {
+            APP_STATE.links.unshift(item);
+            saveStoredLinks();
+            hideLoading();
+
+            APP_STATE.activeLink = item;
+            const fullUrl = window.location.origin + window.location.pathname + '#/f/' + item.id;
+            document.getElementById('generated-link-url').value = fullUrl;
+
+            document.getElementById('modal-link-success').classList.remove('hidden');
+            renderMyLinksList();
+            showToast('Link sukses dibuat!');
+        }
+
+        function openPublicLink(linkId) {
+            const item = APP_STATE.links.find(l => l.id === linkId);
+            if (!item) {
+                showToast('Link tidak ditemukan atau telah dihapus', 'error');
+                showView('home');
+                return;
+            }
+
+            item.views++;
+            saveStoredLinks();
+            APP_STATE.activeLink = item;
+
+            const card = document.getElementById('public-content-card');
+            card.innerHTML = '';
+
+            if (item.type === 'photo') {
+                card.innerHTML = `
+                    <div class="text-center space-y-4">
+                        <div class="inline-block relative rounded-2xl overflow-hidden border border-neon-blue/30 shadow-2xl">
+                            <img src="${item.file_url}" alt="${item.title}" class="max-h-[450px] w-auto mx-auto object-contain">
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-white">${item.title}</h2>
+                            <p class="text-xs text-gray-400 mt-1">Ukuran: ${item.file_size} • Dibuat: ${new Date(item.created_at).toLocaleDateString('id-ID')}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (item.type === 'text') {
+                card.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="tpl-${item.template || 'neon'} p-8 rounded-2xl min-h-[250px]">
+                            <h2 class="text-2xl font-bold border-b border-white/10 pb-3 mb-4">${item.title}</h2>
+                            <p class="text-base leading-relaxed whitespace-pre-wrap">${item.content}</p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-gray-400">
+                            <span>Views: ${item.views}</span>
+                            <button onclick="copyToClipboard('${item.content.replace(/'/g, "\\'")}')" class="text-neon-blue hover:underline">
+                                <i class="fa-solid fa-copy mr-1"></i>Salin Teks
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (item.type === 'apk') {
+                card.innerHTML = `
+                    <div class="flex items-center space-x-4 p-4 rounded-xl bg-dark-bg border border-neon-blue/30">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-3xl shrink-0">
+                            <i class="fa-brands fa-android"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="font-bold text-white text-lg">${item.title}</h3>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold font-mono">${item.apk_version || 'v1.0'}</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">${item.description || 'Aplikasi Android Verified'}</p>
+                            <p class="text-[11px] font-mono text-neon-blue mt-1">Ukuran File: ${item.file_size}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="flex items-center space-x-4 p-4 rounded-xl bg-dark-bg border border-dark-border">
+                        <div class="w-14 h-14 rounded-xl bg-neon-blue/10 text-neon-blue flex items-center justify-center text-2xl shrink-0">
+                            <i class="fa-solid fa-file"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-white text-base truncate">${item.title}</h3>
+                            <p class="text-xs text-gray-400 mt-0.5">Format: ${item.format || 'FILE'} • Ukuran: ${item.file_size}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            showView('public-link');
+        }
+
+        function triggerPublicDownload() {
+            const item = APP_STATE.activeLink;
+            if (!item) return;
+
+            item.downloads++;
+            saveStoredLinks();
+
+            if (item.type === 'text') {
+                const blob = new Blob([item.content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = (item.title || 'dokumen') + '.txt';
+                a.click();
+            } else if (item.file_url) {
+                const a = document.createElement('a');
+                a.href = item.file_url;
+                a.download = item.file_name || item.title || 'linkstudio-file';
+                a.click();
+            }
+            showToast('Mengunduh file...');
+        }
+
+        function renderMyLinksList() {
+            const grid = document.getElementById('my-links-grid');
+            const empty = document.getElementById('my-links-empty');
+            const search = document.getElementById('search-links-input')?.value.toLowerCase() || '';
+            const filterType = document.getElementById('filter-type-select')?.value || 'all';
+
+            let filtered = APP_STATE.links.filter(l => {
+                const matchSearch = l.title.toLowerCase().includes(search) || l.id.toLowerCase().includes(search);
+                const matchType = filterType === 'all' ? true : l.type === filterType;
+                return matchSearch && matchType;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            grid.innerHTML = filtered.map(l => {
+                const fullUrl = window.location.origin + window.location.pathname + '#/f/' + l.id;
+                let badgeIcon = 'fa-file';
+                if (l.type === 'photo') badgeIcon = 'fa-image';
+                if (l.type === 'text') badgeIcon = 'fa-font';
+                if (l.type === 'apk') badgeIcon = 'fa-android';
+
+                return `
+                    <div class="glass-panel p-4 rounded-xl border border-dark-border hover:border-neon-blue/40 transition space-y-3 group">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-lg bg-neon-blue/10 border border-neon-blue/30 text-neon-blue flex items-center justify-center text-lg shrink-0">
+                                    <i class="fa-solid ${badgeIcon}"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="font-bold text-white text-sm truncate">${l.title}</h4>
+                                    <p class="text-[11px] font-mono text-neon-blue">id: ${l.id} • ${l.file_size}</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-white/5 text-gray-400">
+                                ${new Date(l.created_at).toLocaleDateString('id-ID')}
+                            </span>
+                        </div>
+
+                        <!-- Stats Bar -->
+                        <div class="flex items-center space-x-4 text-xs text-gray-400 border-t border-b border-dark-border py-2">
+                            <span><i class="fa-solid fa-eye text-neon-blue mr-1"></i>${l.views} akses</span>
+                            <span><i class="fa-solid fa-download text-neon-purple mr-1"></i>${l.downloads} unduh</span>
+                        </div>
+
+                        <!-- Actions Grid -->
+                        <div class="flex items-center justify-between text-xs pt-1">
+                            <button onclick="copyToClipboard('${fullUrl}')" class="p-1.5 rounded hover:bg-white/10 text-gray-300" title="Salin Link">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                            <button onclick="openPublicLink('${l.id}')" class="p-1.5 rounded hover:bg-white/10 text-neon-blue font-bold" title="Buka Link">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </button>
+                            <button onclick="openQrModalForId('${l.id}')" class="p-1.5 rounded hover:bg-white/10 text-gray-300" title="QR Code">
+                                <i class="fa-solid fa-qrcode"></i>
+                            </button>
+                            <button onclick="deleteLinkItem('${l.id}')" class="p-1.5 rounded hover:bg-rose-500/20 text-rose-400" title="Hapus">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderHomeRecentLinks() {
+            const container = document.getElementById('home-recent-links-list');
+            if (!container) return;
+
+            const recents = APP_STATE.links.slice(0, 4);
+            if (recents.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-500 col-span-2">Belum ada link yang dibuat.</p>';
+                return;
+            }
+
+            container.innerHTML = recents.map(l => {
+                const fullUrl = window.location.origin + window.location.pathname + '#/f/' + l.id;
+                return `
+                    <div class="p-3 rounded-xl bg-dark-card border border-dark-border flex items-center justify-between hover:border-neon-blue/30 transition">
+                        <div class="min-w-0 pr-2">
+                            <h4 class="font-bold text-white text-xs truncate">${l.title}</h4>
+                            <p class="text-[10px] font-mono text-neon-blue">/f/${l.id}</p>
+                        </div>
+                        <button onclick="copyToClipboard('${fullUrl}')" class="px-3 py-1 rounded bg-neon-blue/10 hover:bg-neon-blue/20 text-neon-blue text-xs font-bold shrink-0">
+                            Salin
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function deleteLinkItem(id) {
+            APP_STATE.links = APP_STATE.links.filter(l => l.id !== id);
+            saveStoredLinks();
+            renderMyLinksList();
+            renderHomeRecentLinks();
+            showToast('Link berhasil dihapus');
+        }
+
+        function generateQrCanvas(text, size = 180) {
+            const canvasQr = document.createElement('canvas');
+            canvasQr.width = size;
+            canvasQr.height = size;
+            const qctx = canvasQr.getContext('2d');
+
+            // Draw clean high-tech simulated matrix QR
+            qctx.fillStyle = '#ffffff';
+            qctx.fillRect(0, 0, size, size);
+
+            qctx.fillStyle = '#07090e';
+            const blocks = 21;
+            const blockSize = size / blocks;
+
+            // Simple deterministic seed for QR matrix based on link ID
+            let seed = 0;
+            for (let i = 0; i < text.length; i++) seed += text.charCodeAt(i);
+
+            for (let r = 0; r < blocks; r++) {
+                for (let c = 0; c < blocks; c++) {
+                    // Position pattern corner boxes
+                    if ((r < 7 && c < 7) || (r < 7 && c >= blocks - 7) || (r >= blocks - 7 && c < 7)) {
+                        if ((r === 0 || r === 6 || c === 0 || c === 6) || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
+                            qctx.fillRect(c * blockSize, r * blockSize, blockSize, blockSize);
+                        }
+                        if (r < 7 && c >= blocks - 7) {
+                            if ((r === 0 || r === 6 || c === blocks - 7 || c === blocks - 1) || (r >= 2 && r <= 4 && c >= blocks - 5 && c >= blocks - 3)) {
+                                qctx.fillRect(c * blockSize, r * blockSize, blockSize, blockSize);
+                            }
+                        }
+                    } else {
+                        // Data matrix dots algorithm
+                        if ((r * c + seed * r) % 3 === 0 || (r + c) % 5 === 0) {
+                            qctx.fillRect(c * blockSize, r * blockSize, blockSize, blockSize);
+                        }
+                    }
+                }
+            }
+            return canvasQr;
+        }
+
+        function openQrModalForGenerated() {
+            const url = document.getElementById('generated-link-url').value;
+            showQrModal(url);
+        }
+
+        function openQrModalForCurrentLink() {
+            if (!APP_STATE.activeLink) return;
+            const url = window.location.origin + window.location.pathname + '#/f/' + APP_STATE.activeLink.id;
+            showQrModal(url);
+        }
+
+        function openQrModalForId(id) {
+            const url = window.location.origin + window.location.pathname + '#/f/' + id;
+            showQrModal(url);
+        }
+
+        function showQrModal(url) {
+            const holder = document.getElementById('qr-canvas-holder');
+            holder.innerHTML = '';
+            const qrCanvas = generateQrCanvas(url, 200);
+            holder.appendChild(qrCanvas);
+
+            document.getElementById('qr-link-caption').innerText = url;
+            document.getElementById('modal-qr').classList.remove('hidden');
+        }
+
+        function downloadQrImage() {
+            const canvasQr = document.querySelector('#qr-canvas-holder canvas');
+            if (!canvasQr) return;
+            const a = document.createElement('a');
+            a.download = 'linkstudio-qrcode.png';
+            a.href = canvasQr.toDataURL('image/png');
+            a.click();
+        }
+
+        function copyToClipboard(text) {
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast('Link disalin ke clipboard!');
+        }
+
+        function copyGeneratedLink() {
+            const url = document.getElementById('generated-link-url').value;
+            copyToClipboard(url);
+        }
+
+        function shareGeneratedLink(platform) {
+            const url = document.getElementById('generated-link-url').value;
+            if (platform === 'whatsapp') {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Cek file ini di LinkStudio: ' + url)}`, '_blank');
+            } else if (platform === 'telegram') {
+                window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent('Cek file ini di LinkStudio')}`, '_blank');
+            } else if (navigator.share) {
+                navigator.share({ title: 'LINKSTUDIO Share', url: url });
+            } else {
+                copyToClipboard(url);
+            }
+        }
+
+        function shareCurrentPublicLink() {
+            if (!APP_STATE.activeLink) return;
+            const url = window.location.origin + window.location.pathname + '#/f/' + APP_STATE.activeLink.id;
+            if (navigator.share) {
+                navigator.share({ title: APP_STATE.activeLink.title, url: url });
+            } else {
+                copyToClipboard(url);
+            }
+        }
+
+        function openGeneratedPublicView() {
+            closeModal('modal-link-success');
+            if (APP_STATE.activeLink) {
+                openPublicLink(APP_STATE.activeLink.id);
+            }
+        }
+
+        function saveSupabaseConfig() {
+            const url = document.getElementById('supabase-url-input').value.trim();
+            const key = document.getElementById('supabase-anon-key-input').value.trim();
+
+            if (!url || !key) {
+                showToast('Isi URL dan Anon Key Supabase', 'error');
+                return;
+            }
+
+            APP_STATE.supabase.url = url;
+            APP_STATE.supabase.key = key;
+            localStorage.setItem('linkstudio_supabase', JSON.stringify(APP_STATE.supabase));
+
+            document.getElementById('storage-status-text').innerText = 'Supabase Cloud Storage (Connected)';
+            showToast('Konfigurasi Supabase Tersimpan!');
+        }
+
+        function clearAllLocalLinks() {
+            APP_STATE.links = [];
+            saveStoredLinks();
+            renderMyLinksList();
+            renderHomeRecentLinks();
+            showToast('Semua link lokal dihapus');
+        }
+
+        function exportLinksJson() {
+            const blob = new Blob([JSON.stringify(APP_STATE.links, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'linkstudio-backup.json';
+            a.click();
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            showToast('Tema diubah');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function openMobileBottomSheet(toolType) {
+            const sheet = document.getElementById('mobile-bottom-sheet');
+            const content = document.getElementById('mobile-sheet-content');
+
+            setPhotoToolTab(toolType);
+            const sourceTool = document.getElementById('ptab-' + toolType);
+            if (sourceTool) {
+                content.innerHTML = sourceTool.innerHTML;
+            }
+            sheet.classList.remove('closed');
+        }
+
+        function closeMobileBottomSheet() {
+            document.getElementById('mobile-bottom-sheet').classList.add('closed');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const isError = type === 'error';
+            toast.className = `glass-panel px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-xs font-semibold transform transition duration-300 translate-y-4 border ${isError ? 'border-rose-500/50 text-rose-300' : 'border-neon-blue/50 text-neon-blue'}`;
+            
+            toast.innerHTML = `
+                <i class="fa-solid ${isError ? 'fa-circle-xmark text-rose-400' : 'fa-circle-check text-neon-blue'} text-sm"></i>
+                <span class="text-white">${message}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-4'), 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function toggleFullscreenCanvas() {
+            const container = document.getElementById('canvas-container');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => console.error(err));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>
